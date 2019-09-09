@@ -1,0 +1,68 @@
+---
+title: "R Notebook : Extension School, Report 1"
+output: html_notebook
+---
+
+Notepook for report 1
+
+# Load the data
+
+```{r}
+library(readr)
+library(dplyr)
+students_answers <- read_csv("raw_data/students.csv", 
+    col_types = cols(Agree = col_integer(), 
+        Disagree = col_integer(), `Totally Disagree` = col_integer(), 
+        `Totally agree` = col_integer(), 
+        X1 = col_integer())) %>%
+  janitor::clean_names()
+
+professors_answers <- read_csv("raw_data/professors.csv", 
+    col_types = cols(Agree = col_integer(), 
+        Disagree = col_integer(), `Totally Disagree` = col_integer(), 
+        `Totally agree` = col_integer(), 
+        X1 = col_integer())) %>%
+  janitor::clean_names()
+
+```
+
+# Part 1
+
+## What is the total number of answers obtained from students?
+
+Get the total student answers
+
+```{r}
+students_answers %>% 
+  mutate(Total = totally_disagree + totally_agree + agree + disagree) %>%
+  select(Total) %>%
+  sum()
+```
+
+## What is the total number of answers obtained from professors?
+
+Get the total student answers
+
+```{r}
+professors_answers %>% 
+  mutate(Total = totally_disagree + totally_agree + agree + disagree) %>%
+  select(Total) %>%
+  sum()
+```
+
+
+## Does each question have the same number of answers?
+
+Return true if there is no more than one distinct value for the total number of answer
+
+students_answers %>% 
+  mutate(Total = totally_disagree + totally_agree + agree + disagree) %>%
+  select(Total) %>%
+  distinct() %>%
+  count() == 1
+
+# Part 2
+
+## Obtain side-by-side bar charts 
+
+# Part 3
