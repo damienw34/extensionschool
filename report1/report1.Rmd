@@ -3,9 +3,11 @@ title: "R Notebook : Extension School, Report 1"
 output: html_notebook
 ---
 
-Notepook for report 1
+Report 1 notebook. see https://www.extensionschool.ch/learn/programs/50-things-you-need-to-know-about-data-v1/subjects/projects-v1/units/report-1-v1
 
 # Load the data
+
+Load data from Likert test from files.
 
 ```{r}
 library(readr)
@@ -28,9 +30,9 @@ professors_answers <- read_csv("raw_data/professors.csv",
 
 # Part 1
 
-## What is the total number of answers obtained from students?
+## Find answers count for students
 
-Get the total student answers
+What is the total number of answers obtained from students?
 
 ```{r}
 students_answers %>% 
@@ -39,9 +41,9 @@ students_answers %>%
   sum()
 ```
 
-## What is the total number of answers obtained from professors?
+##  Find answers count for professors
 
-Get the total student answers
+What is the total number of answers obtained from professors?
 
 ```{r}
 professors_answers %>% 
@@ -55,14 +57,96 @@ professors_answers %>%
 
 Return true if there is no more than one distinct value for the total number of answer
 
+```{r}
 students_answers %>% 
   mutate(Total = totally_disagree + totally_agree + agree + disagree) %>%
   select(Total) %>%
   distinct() %>%
   count() == 1
+```
 
 # Part 2
 
 ## Obtain side-by-side bar charts 
 
+```{r}
+library(ggplot2)
+library(tidyr)
+
+## add respondant column and merge professor and student answers
+g1 <- mutate(students_answers, "respondant" = "student")
+g2 <- mutate(professors_answers, "respondant" = "professor")
+all_answers <- rbind(g1 , g2)
+
+## convert columns to rows
+plot_data <- all_answers %>%
+  gather(key="rating", value="value", totally_agree, agree, disagree, 
+         totally_disagree) 
+
+## print data
+rate_labels <- c(
+  agree = "Agree",
+  disagree = "Disagree",
+  totally_agree = "Totally agree",
+  totally_disagree = "Totally disagree"
+)
+plot_data %>%
+  ggplot(aes(x=rating, y=value, fill=respondant)) +
+  geom_bar(stat='identity', position="dodge") +
+  facet_wrap(~x1, scales="fixed") + 
+  labs(
+    x="type_of_response",
+    y="count_of_respsonse",
+    title="My side-by-side facet chart",
+    subtitle="Using facet to show each questions"
+  ) + 
+  theme_minimal() +
+  theme(
+      axis.text.x = element_text(angle=90, hjust=0)
+      ) +
+  scale_x_discrete(labels=rate_labels)
+
+
+```
+
+
 # Part 3
+
+## Mode Computing
+
+compute mode for each question
+
+```{r}
+plot_data %>%
+  group_by(respondant, x1, rating) %>%
+  summarise(value=max(value)) %>%
+  ungroup() %>%
+  group_by(respondant, x1) %>%
+  top_n(1,value)
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
